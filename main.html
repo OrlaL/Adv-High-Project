@@ -1,0 +1,37 @@
+<!-- main.html -->
+<html>
+<head>
+    <!-- Link external CSS and JS files -->
+    <link rel="stylesheet" href="static/style.css">
+    <script defer src="static/script.js"></script>
+</head>
+<body  onload="updateLeaderboard()">
+
+<!-- EU5, FR3, FR7,  -->
+<div class="timer"> <!-- Timer that is incremented every second -->
+    <center><p>00:00</p></center>
+</div>
+
+<!-- EU1, FR1, FR14 -->
+<!-- Game grid, generated when webpage is loaded -->
+<div class="gameGrid">
+    {% for row in puzzle %}
+        {% for cell in row %}
+            <div class="tile" data-value="{{ cell }}"></div>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+<!-- EU6, FR9 -->
+<div id="leaderboard">
+    <h2>Leaderboard</h2>
+    <p>Leaderboard Empty</p>
+</div>
+
+
+<!-- EU1, EU3, FR1, FR6, FR8,  -->
+<!-- Start and give up buttons -->
+<div class="buttons"><button id="start" type="button" onclick="startGame()">Start</button>
+    <button type="button" id="end" onclick="showSolution()">Give Up</button></div>
+</body>
+</html>
