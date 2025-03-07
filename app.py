@@ -10,87 +10,78 @@ app = Flask(__name__)
 #Generate Puzzle Grid, 2D-Array (EU1, FR1)
 #Function to return the grid as a 2D array with each index having
 #coordinates and a number that correlates with a colour
-def createGrid():              
+def createGrid():
     grid = []
     colours = ["1", "2", "3", "4", "5", "6", "7", "8"]
 
-    #Loops through the array to assign values
     for i in range(8):
         grid.append([])
         for j in range(8):
-            #Assign the coordinates and colour code to each index
-            grid[i].append([np.array([i+1, j+1]), colours[i]])  
+            # Assign the coordinates and colour code to each index
+            grid[i].append([[i+1, j+1], colours[i]])
 
     return grid
 
 #Randomise Solution (EU1, FR1)
 #Function that randomises the solution by swapping the positions
 #of values in the array then returns the unique grid
-def randomiseSolution(grid):                                                     
-    for i in range(len(grid)):                       
+def randomiseSolution(grid):
+    for i in range(len(grid)):
         for j in range(-1, 1):
-            #Assign to the current index coordinates                   
             point1 = grid[i][j][0]
-            for k in range(len(grid)): 
-                #Check that the connection is larger than the minimum length
+            for k in range(len(grid)):
                 if k == i or len(grid[k]) == 4:
                     continue
-                for l in range(-1, 1): 
-                    #Assign to the next index coordinates            
-                    point2 = grid[k][l][0]       
-                    #Check the euclidean distance between these two points    
-                    if np.linalg.norm(point1 - point2) == 1.0 and np.random.rand()>0.5:
+                for l in range(-1, 1):
+                    point2 = grid[k][l][0]
+                    # Calculate Euclidean distance manually
+                    distance = ((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2) ** 0.5
+                    if distance == 1.0 and random.random() > 0.5:
                         grid[k].pop(l)
-                        #Randomly either append a new tile or insert a new value 
                         if j == -1:
-                            grid[i].append([point2, grid[i][0][1]])        
+                            grid[i].append([point2, grid[i][0][1]])
                         else:
                             grid[i].insert(0, [point2, grid[i][0][1]])
-                        return grid
-    return grid
+                    
 
 #Generate Puzzle Grid & Generate Solution Grid (EU1, FR1)
 #Function to create arrays of the puzzle grid and solution grid
 def generateGrid(grid, solution=False):
-    puzzle = [['0'] * 8 for i in range(8)]
+    puzzle = [['0'] * 8 for _ in range(8)]
 
     for i in range(len(grid)):
-        start_x, start_y = grid[i][0][0] - 1  
-        end_x, end_y = grid[i][-1][0] - 1     
+        start_x, start_y = grid[i][0][0] - 1
+        end_x, end_y = grid[i][-1][0] - 1
 
         if solution:
-            for j in range(len(grid[i])):  # Loop through each element in grid[i]
+            for j in range(len(grid[i])):
                 x, y = grid[i][j][0] - 1
-                puzzle[x][y] = grid[i][j][1] 
+                puzzle[x][y] = grid[i][j][1]
         else:
-            puzzle[start_x][start_y] = grid[i][0][1] 
-            puzzle[end_x][end_y] = grid[i][-1][1]  
+            puzzle[start_x][start_y] = grid[i][0][1]
+            puzzle[end_x][end_y] = grid[i][-1][1]
 
-    return puzzle  
+    return puzzle
 
 #Sort Leaderboard, Insertion Sort (EU6, FR4, FR5)
 #Procedure to read the contents of the file and sort it into ascending order
 def sortLeaderboard(file):
-    i = 0
-    array = [] 
-    with open(file) as readfile:  # Open and read the file
-        line = readfile.readline().rstrip('\n')
-        while line:
-            array.append(line)  # Add the time to an array
-            line = readfile.readline().rstrip('\n')
-            i += 1
+    array = []
+    with open(file) as readfile:
+        for line in readfile:
+            array.append(line.rstrip('\n'))
 
-    max = len(array)
-    for outer in range(1, max):  # Scan array n-1 times
+    max_length = len(array)
+    for outer in range(1, max_length):
         inner = outer
         while inner > 0 and array[inner-1] > array[inner]:
-            # Progressively shorten items scanned
-            array[inner-1], array[inner] = swap(array[inner-1], array[inner])
-            inner = inner - 1
+            array[inner-1], array[inner] = array[inner], array[inner-1]
+            inner -= 1
 
-    with open(file, "w") as writefile:  # Open and write to file
-        for i in range(len(array)):
-            writefile.write(str(array[i]) + '\n')
+    with open(file, "w") as writefile:
+        for item in array:
+            writefile.write(str(item) + '\n')
+
 
 #Swap Leaderboard Values (EU6, FR4, FR5)
 #Function that swaps two values
